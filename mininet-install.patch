@@ -1,0 +1,40 @@
+--- install.sh  2024-12-04 12:42:16.038234220 +0000
++++ patched.sh  2024-12-04 12:43:13.281649031 +0000
+@@ -83,6 +83,9 @@
+ # Treat Raspbian as Debian
+ [ "$DIST" = 'Raspbian' ] && DIST='Debian'
+
++# Treat Rocky as RHEL
++[ "$DIST" = 'Rocky' ] && DIST='RedHatEnterpriseServer'
++
+ DISTS='Ubuntu|Debian|Fedora|RedHatEnterpriseServer|SUSE LINUX'
+ if ! echo $DIST | egrep "$DISTS" >/dev/null; then
+     echo "Install.sh currently only supports $DISTS."
+@@ -108,10 +111,10 @@
+ PYTHON_VERSION=unknown
+ for python in $PYTHON python2 python3; do
+     if $python -c "$PRINTVERSION" |& grep 'major=2'; then
+-        PYTHON=$python; PYTHON_VERSION=2; PYPKG=python
++        PYTHON=$python; PYTHON_VERSION=2; PYPKG=$python
+         break
+     elif $python -c "$PRINTVERSION" |& grep 'major=3'; then
+-        PYTHON=$python; PYTHON_VERSION=3; PYPKG=python3
++        PYTHON=$python; PYTHON_VERSION=3; PYPKG=$python
+         break
+     fi
+ done
+@@ -163,10 +166,11 @@
+     echo "Installing Mininet dependencies"
+     if [ "$DIST" = "Fedora" -o "$DIST" = "RedHatEnterpriseServer" ]; then
+         $install gcc make socat psmisc xterm openssh-clients iperf \
+-            iproute telnet python-setuptools libcgroup-tools \
++            iproute telnet libcgroup-tools \
+             ethtool help2man net-tools
+-        $install ${PYPKG}-pyflakes pylint ${PYPKG}-pep8-naming \
+-            ${PYPKG}-pexpect
++        ${PYTHON} -m pip install pexpect
++        # $install ${PYPKG}-pyflakes pylint ${PYPKG}-pep8-naming ${PYPKG}-setuptools \
++        #     ${PYPKG}-pexpect
+     elif [ "$DIST" = "SUSE LINUX"  ]; then
+                $install gcc make socat psmisc xterm openssh iperf \
+                        iproute telnet ${PYPKG}-setuptools libcgroup-tools \
